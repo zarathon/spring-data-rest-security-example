@@ -1,9 +1,13 @@
 package com.greenmile.bean;
 
+import java.util.List;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 
 @Entity
 public class Member {
@@ -12,8 +16,20 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.AUTO)
 	Long id;
 	
+	@ManyToMany(mappedBy="members")
+	List<Team> teams;
+	
+	@Column(nullable=false, unique=true)
 	String name;
+	
+	public Member() {
+	}
+	
+	public Member(String name) {
+		this.name = name;
+	}
 
+	
 	public Long getId() {
 		return id;
 	}

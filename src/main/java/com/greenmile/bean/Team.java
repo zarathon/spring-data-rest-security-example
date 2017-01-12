@@ -1,13 +1,13 @@
 package com.greenmile.bean;
 
 import java.util.List;
-
-import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToMany;
+
 
 @Entity
 public class Team {
@@ -15,12 +15,13 @@ public class Team {
 	@Id
     @GeneratedValue(strategy = GenerationType.AUTO)
 	Long id;
-	
-	String name;
-	
-	@OneToMany(cascade=CascadeType.ALL)
+		
+	@ManyToMany
 	List<Member> members;
 
+	@Column(nullable=false, unique=true)
+	String name;
+	
 	public Long getId() {
 		return id;
 	}
