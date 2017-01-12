@@ -20,8 +20,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http
 			.httpBasic().and()
 			.authorizeRequests()
-				.antMatchers("/member").hasRole("ADMIN")
-				.antMatchers("/team").hasRole("ADMIN")
+				.antMatchers("/members").hasRole("ADMIN")
+				.antMatchers("/teams").hasRole("ADMIN")
 			.and()
 			.csrf().disable();
 	}
