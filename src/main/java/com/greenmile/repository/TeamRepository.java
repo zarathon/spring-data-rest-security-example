@@ -10,5 +10,5 @@ import com.greenmile.bean.Team;
 
 @RepositoryRestResource(collectionResourceRel="team", path="team")
 public interface TeamRepository extends PagingAndSortingRepository<Team, Long>{
-	List<Team> findByName(@Param("name") String name);
+	List<Team> findByNameIgnoreCaseContains(@Param("name") String name);
 }
