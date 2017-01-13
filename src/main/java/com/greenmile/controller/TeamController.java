@@ -1,46 +1,48 @@
 package com.greenmile.controller;
 
-
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.hateoas.EntityLinks;
-import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceProcessor;
-import org.springframework.hateoas.ResourceSupport;
-import org.springframework.hateoas.core.ControllerEntityLinks;
-import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
+import com.greenmile.bean.Member;
 import com.greenmile.bean.Team;
-import com.greenmile.service.TeamService;
+import com.greenmile.repository.TeamRestRepository;
 
 @BasePathAwareController
 @RequestMapping("/teams")
 public class TeamController implements ResourceProcessor<Resource<Team>> {
 	
 	@Autowired
-	TeamService teamService;
-	@Autowired
     private EntityLinks entityLinks;
 	
+	@Autowired
+	TeamRestRepository teamRestRepository;
+	
 	@RequestMapping(value="/{idTeam}/addMember", produces="application/json", method=RequestMethod.POST)
-	public ResponseEntity<Resource<Team>> addMember(@PathVariable("idTeam") Long idTeam, @RequestParam("idMember") Long idMember ){
-		try{
-			Team team = teamService.addMember(idTeam, idMember);
-			Resource<Team> resource = new Resource<Team>(team);
-			return new ResponseEntity<Resource<Team>>(resource, HttpStatus.CREATED);
-		} catch(Exception e){
-			return new ResponseEntity<Resource<Team>>(HttpStatus.BAD_REQUEST);
+	public ResponseEntity addMember(@PathVariable("idTeam") Team team, @RequestParam("idMember") Member member ){		
+		
+		if(member==null){
+			return new ResponseEntity("This member not exist.", HttpStatus.NOT_FOUND);
+		} else if(team==null){
+			return new ResponseEntity("This team not exist.", HttpStatus.NOT_FOUND);
+		} else if(team.getMembers().contains(member)){
+			return new ResponseEntity("This member is already on team.", HttpStatus.CONFLICT);
 		}
+		
+		team.getMembers().add(member);
+		teamRestRepository.save(team);
+		
+		Resource<Team> resource = new Resource<Team>(team);
+				
+		return new ResponseEntity(resource, HttpStatus.CREATED);
 	}
 
 	@Override
@@ -49,9 +51,4 @@ public class TeamController implements ResourceProcessor<Resource<Team>> {
 		resource.add(entityLinks.linkForSingleResource(Team.class, team.getId()+"/addMember").withRel("addMember"));
 		return resource;
 	}
-
-	
-	
-	
-
 }
