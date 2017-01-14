@@ -9,9 +9,9 @@ import org.springframework.hateoas.ResourceProcessor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.greenmile.bean.Member;
 import com.greenmile.bean.Team;
@@ -29,13 +29,13 @@ public class TeamController implements ResourceProcessor<Resource<Team>> {
 	TeamRestRepository teamRestRepository;
 	
 	@RequestMapping(value="/{idTeam}/addMember", produces="application/json", method=RequestMethod.POST)
-	public ResponseEntity<Team> addMember(@PathVariable("idTeam") Team team, @RequestParam("idMember") Member member ){		
+	public ResponseEntity<Team> addMember(@PathVariable("idTeam") Team team, @RequestBody Member member ){	
 		
 		
 		if(member==null){
-			throw new ResourceNotFoundException("This member not exist.");
+			throw new ResourceNotFoundException("Member not exist.");
 		} else if(team==null){
-			throw new ResourceNotFoundException("This team not exist.");
+			throw new ResourceNotFoundException("Team not exist.");
 		} else if(team.getMembers().contains(member)){
 			throw new MemberAlreadyBeOnTeam();
 		}
