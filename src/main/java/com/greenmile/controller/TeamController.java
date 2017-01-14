@@ -42,8 +42,6 @@ public class TeamController implements ResourceProcessor<Resource<Team>> {
 		
 		team.getMembers().add(member);
 		teamRestRepository.save(team);
-		
-		//Resource<Team> resource = new Resource<Team>(team,entityLinks.linkForSingleResource(Team.class, team));
 				
 		return new ResponseEntity<Team>(team, HttpStatus.CREATED);
 	}
