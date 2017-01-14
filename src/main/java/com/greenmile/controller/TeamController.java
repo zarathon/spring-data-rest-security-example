@@ -2,6 +2,8 @@ package com.greenmile.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
+import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceProcessor;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.greenmile.bean.Member;
 import com.greenmile.bean.Team;
+import com.greenmile.exception.MemberAlreadyBeOnTeam;
 import com.greenmile.repository.TeamRestRepository;
 
 @BasePathAwareController
@@ -22,28 +25,29 @@ import com.greenmile.repository.TeamRestRepository;
 public class TeamController implements ResourceProcessor<Resource<Team>> {
 	
 	@Autowired
-    private EntityLinks entityLinks;
+    private RepositoryEntityLinks entityLinks;
 	
 	@Autowired
 	TeamRestRepository teamRestRepository;
 	
 	@RequestMapping(value="/{idTeam}/addMember", produces="application/json", method=RequestMethod.POST)
-	public ResponseEntity addMember(@PathVariable("idTeam") Team team, @RequestParam("idMember") Member member ){		
+	public ResponseEntity<Team> addMember(@PathVariable("idTeam") Team team, @RequestParam("idMember") Member member ){		
+		
 		
 		if(member==null){
-			return new ResponseEntity("This member not exist.", HttpStatus.NOT_FOUND);
+			throw new ResourceNotFoundException("This member not exist.");
 		} else if(team==null){
-			return new ResponseEntity("This team not exist.", HttpStatus.NOT_FOUND);
+			throw new ResourceNotFoundException("This team not exist.");
 		} else if(team.getMembers().contains(member)){
-			return new ResponseEntity("This member is already on team.", HttpStatus.CONFLICT);
+			throw new MemberAlreadyBeOnTeam();
 		}
 		
 		team.getMembers().add(member);
 		teamRestRepository.save(team);
 		
-		Resource<Team> resource = new Resource<Team>(team);
+		//Resource<Team> resource = new Resource<Team>(team,entityLinks.linkForSingleResource(Team.class, team));
 				
-		return new ResponseEntity(resource, HttpStatus.CREATED);
+		return new ResponseEntity<Team>(team, HttpStatus.CREATED);
 	}
 
 	@Override
