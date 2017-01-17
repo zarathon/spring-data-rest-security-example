@@ -3,6 +3,7 @@ package com.greenmile;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -86,10 +87,12 @@ public class TeamRestTest {
 					.content(json)
 				)
 				.andExpect(status().isCreated())
-				.andExpect(jsonPath("$.id", is(teamMock.getId().intValue())))
-				.andExpect(jsonPath("$.name", is(teamName)))
-				.andExpect(jsonPath("$.members").isNotEmpty())
-				.andExpect(jsonPath("$.members[0].name", is(memberName)));
+				.andExpect(jsonPath("$.name", is(teamName)));
+		mockMvc.perform(
+					get("/teams/{id}/members", teamMock.getId())
+				)
+				.andExpect(jsonPath("$._embedded.members").isNotEmpty())
+				.andExpect(jsonPath("$._embedded.members[0].name", is(memberName)));
 		
 	}
 	
@@ -167,10 +170,13 @@ public class TeamRestTest {
 					.content(json)
 				)
 				.andExpect(status().isCreated())
-				.andExpect(jsonPath("$.id", is(teamMock.getId().intValue())))
-				.andExpect(jsonPath("$.name", is(teamName)))
-				.andExpect(jsonPath("$.members").isNotEmpty())
-				.andExpect(jsonPath("$.members[0].name", is(memberName)));
+				.andExpect(jsonPath("$.name", is(teamName)));
+		
+		mockMvc.perform(
+				get("/teams/{id}/members", teamMock.getId())
+			)
+			.andExpect(jsonPath("$._embedded.members").isNotEmpty())
+			.andExpect(jsonPath("$._embedded.members[0].name", is(memberName)));
 		
 		MvcResult mvcResult = mockMvc.perform(
 				post("/teams/{id}/addMember", teamMock.getId())
